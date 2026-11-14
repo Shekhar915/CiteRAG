@@ -7,6 +7,7 @@ scores its own answers with an evaluation harness.
 > [REQUIREMENTS.md](REQUIREMENTS.md) for the scope and milestones.
 
 ## Structure
+
 ```
 src/citerag/
 ├── api/            # FastAPI app and routes
@@ -23,6 +24,7 @@ deploy/             # Dockerfile and compose files
 ```
 
 ## Quick start
+
 ```bash
 python -m venv .venv
 .venv\Scripts\activate          # Linux/macOS: source .venv/bin/activate
