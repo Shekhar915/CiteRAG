@@ -3,7 +3,7 @@
 Agentic RAG service that answers from your documents with citations, and
 scores its own answers with an evaluation harness.
 
-> Status: day 1. The scaffold and the document chunker are in place. See
+> Status: day 2. Settings, logging, the Gemini client, API schemas and the\n> `/health` and `/ready` endpoints are in place on top of the day 1 scaffold. See
 > [REQUIREMENTS.md](REQUIREMENTS.md) for the scope and milestones.
 
 ## Structure
