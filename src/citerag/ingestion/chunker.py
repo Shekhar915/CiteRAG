@@ -1,4 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+
+from citerag.ingestion.models import Page
 
 
 @dataclass(frozen=True)
@@ -8,9 +10,12 @@ class Chunk:
     index: int
     start: int
     end: int
+    page: int | None = None
 
 
-def chunk_text(text: str, source: str, size: int = 800, overlap: int = 100) -> list[Chunk]:
+def chunk_text(
+    text: str, source: str, size: int = 800, overlap: int = 100, page: int | None = None
+) -> list[Chunk]:
     """Split text into overlapping chunks, preferring to break at whitespace."""
     if size <= 0:
         raise ValueError("size must be positive")
@@ -30,10 +35,21 @@ def chunk_text(text: str, source: str, size: int = 800, overlap: int = 100) -> l
 
         piece = text[start:end].strip()
         if piece:
-            chunks.append(Chunk(piece, source, len(chunks), start, end))
+            chunks.append(Chunk(piece, source, len(chunks), start, end, page))
 
         if end >= len(text):
             break
         start = max(end - overlap, start + 1)
 
+    return chunks
+
+def chunk_pages(pages: list[Page], size: int = 800, overlap: int = 100) -> list[Chunk]:
+    """Chunk each page separately so every chunk keeps its page number.
+
+    Chunk indexes are renumbered to stay unique per source document.
+    """
+    chunks: list[Chunk] = []
+    for page in pages:
+        for chunk in chunk_text(page.text, page.source, size, overlap, page.page):
+            chunks.append(replace(chunk, index=len(chunks)))
     return chunks

@@ -1,6 +1,7 @@
 import pytest
 
-from citerag.ingestion.chunker import chunk_text
+from citerag.ingestion.chunker import chunk_pages, chunk_text
+from citerag.ingestion.models import Page
 
 
 def test_short_text_is_one_chunk():
@@ -38,3 +39,13 @@ def test_invalid_arguments_are_rejected():
         chunk_text("abc", "d", size=0)
     with pytest.raises(ValueError):
         chunk_text("abc", "d", size=10, overlap=10)
+
+
+def test_chunk_pages_keeps_page_numbers_and_unique_indexes():
+    pages = [
+        Page(text=" ".join(f"a{i}" for i in range(80)), source="d.pdf", page=1),
+        Page(text=" ".join(f"b{i}" for i in range(80)), source="d.pdf", page=2),
+    ]
+    chunks = chunk_pages(pages, size=120, overlap=20)
+    assert {c.page for c in chunks} == {1, 2}
+    assert [c.index for c in chunks] == list(range(len(chunks)))
