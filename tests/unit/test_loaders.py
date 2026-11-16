@@ -1,6 +1,7 @@
+import pytest
 from pypdf import PdfWriter
 
-from citerag.ingestion.loaders import load_pdf, load_text
+from citerag.ingestion.loaders import load_document, load_pdf, load_text
 
 
 def test_load_text_returns_single_page(tmp_path):
@@ -25,3 +26,22 @@ def test_load_pdf_skips_pages_without_text(tmp_path):
     with f.open("wb") as fh:
         writer.write(fh)
     assert load_pdf(f) == []
+
+def test_load_document_rejects_unsupported_type(tmp_path):
+    f = tmp_path / "data.exe"
+    f.write_bytes(b"x")
+    with pytest.raises(ValueError, match="unsupported"):
+        load_document(f)
+
+
+def test_load_document_enforces_size_limit(tmp_path):
+    f = tmp_path / "big.txt"
+    f.write_text("a" * 100, encoding="utf-8")
+    with pytest.raises(ValueError, match="limit"):
+        load_document(f, max_bytes=10)
+
+
+def test_load_document_dispatches_text(tmp_path):
+    f = tmp_path / "a.txt"
+    f.write_text("hello", encoding="utf-8")
+    assert load_document(f)[0].text == "hello"

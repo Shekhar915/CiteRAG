@@ -21,3 +21,12 @@ def load_pdf(path: Path) -> list[Page]:
         if text:
             pages.append(Page(text=text, source=path.name, page=number))
     return pages
+
+def load_document(path: Path, max_bytes: int | None = None) -> list[Page]:
+    """Load a supported file, enforcing the type and (optional) size limits."""
+    suffix = path.suffix.lower()
+    if suffix != ".pdf" and suffix not in TEXT_SUFFIXES:
+        raise ValueError(f"unsupported file type: {suffix or 'none'}")
+    if max_bytes is not None and path.stat().st_size > max_bytes:
+        raise ValueError(f"file exceeds the {max_bytes} byte limit")
+    return load_pdf(path) if suffix == ".pdf" else load_text(path)
