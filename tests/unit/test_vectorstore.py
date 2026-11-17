@@ -31,3 +31,11 @@ def test_top_k_limits_results():
 def test_add_rejects_mismatched_lengths():
     with pytest.raises(ValueError):
         InMemoryVectorStore().add([make_chunk("a")], [])
+
+def test_search_can_filter_by_source():
+    store = InMemoryVectorStore()
+    a = Chunk(text="a", source="one.txt", index=0, start=0, end=1)
+    b = Chunk(text="b", source="two.txt", index=0, start=0, end=1)
+    store.add([a, b], [[1, 0], [1, 0]])
+    hits = store.search([1, 0], top_k=5, source="two.txt")
+    assert [h.chunk.source for h in hits] == ["two.txt"]

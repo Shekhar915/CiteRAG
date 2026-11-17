@@ -14,7 +14,9 @@ class SearchHit:
 class VectorStore(Protocol):
     def add(self, chunks: list[Chunk], vectors: list[list[float]]) -> None: ...
 
-    def search(self, vector: list[float], top_k: int = 5) -> list[SearchHit]: ...
+    def search(
+        self, vector: list[float], top_k: int = 5, source: str | None = None
+    ) -> list[SearchHit]: ...
 
 
 def cosine(a: list[float], b: list[float]) -> float:
@@ -34,6 +36,12 @@ class InMemoryVectorStore:
             raise ValueError("chunks and vectors must have the same length")
         self._items.extend(zip(chunks, vectors, strict=True))
 
-    def search(self, vector: list[float], top_k: int = 5) -> list[SearchHit]:
-        scored = [SearchHit(c, cosine(vector, v)) for c, v in self._items]
+    def search(
+        self, vector: list[float], top_k: int = 5, source: str | None = None
+    ) -> list[SearchHit]:
+        scored = [
+            SearchHit(c, cosine(vector, v))
+            for c, v in self._items
+            if source is None or c.source == source
+        ]
         return sorted(scored, key=lambda h: h.score, reverse=True)[:top_k]
