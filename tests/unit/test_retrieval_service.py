@@ -46,3 +46,11 @@ def test_indexing_is_batched(monkeypatch):
 def test_empty_query_is_rejected():
     with pytest.raises(ValueError):
         service.search("  ", FakeEmbedder(), InMemoryVectorStore())
+
+def test_search_passes_source_filter():
+    store = InMemoryVectorStore()
+    a = Chunk(text="cat", source="one.txt", index=0, start=0, end=3)
+    b = Chunk(text="cat", source="two.txt", index=0, start=0, end=3)
+    store.add([a, b], [[1.0, 0.0], [1.0, 0.0]])
+    hits = service.search("cat", FakeEmbedder(), store, source="two.txt")
+    assert [h.chunk.source for h in hits] == ["two.txt"]

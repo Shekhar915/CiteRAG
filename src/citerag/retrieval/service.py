@@ -14,8 +14,14 @@ def index_chunks(chunks: list[Chunk], embedder: Embedder, store: VectorStore) ->
     return len(chunks)
 
 
-def search(query: str, embedder: Embedder, store: VectorStore, top_k: int = 5) -> list[SearchHit]:
+def search(
+    query: str,
+    embedder: Embedder,
+    store: VectorStore,
+    top_k: int = 5,
+    source: str | None = None,
+) -> list[SearchHit]:
     """Embed the query and return the closest chunks."""
     if not query.strip():
         raise ValueError("query must not be empty")
-    return store.search(embedder.embed_query(query), top_k=top_k)
+    return store.search(embedder.embed_query(query), top_k=top_k, source=source)
