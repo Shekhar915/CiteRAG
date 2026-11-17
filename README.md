@@ -3,8 +3,12 @@
 Agentic RAG service that answers from your documents with citations, and
 scores its own answers with an evaluation harness.
 
-> Status: day 2. Settings, logging, the Gemini client, API schemas and the\n> `/health` and `/ready` endpoints are in place on top of the day 1 scaffold. See
-> [REQUIREMENTS.md](REQUIREMENTS.md) for the scope and milestones.
+> Status: day 4. Embeddings and vector search are in place: a Gemini embedding
+> client, a vector store interface, batched indexing and source filtering.
+> Document ingestion (PDF, Markdown, text), settings, logging and the health
+> endpoints came before it. The Chroma-backed store is next; tests use an
+> in-memory store. See [REQUIREMENTS.md](REQUIREMENTS.md) for the scope and
+> milestones.
 
 ## Structure
 
