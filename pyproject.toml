@@ -16,7 +16,6 @@ dependencies = [
     "langchain-core",
     "langchain-google-genai",
     "chromadb",
-    "rank-bm25",
     "pypdf",
 ]
 

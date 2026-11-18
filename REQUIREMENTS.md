@@ -39,7 +39,7 @@ evaluation harness.
 
 ## 5. Tech stack
 Python 3.11+, FastAPI, LangGraph, Google Gemini (LLM and embeddings), Chroma
-(vector store), rank-bm25, Pydantic v2, pytest, Ruff, mypy, Docker, GitHub Actions.
+(vector store), an in-house BM25 index, Pydantic v2, pytest, Ruff, mypy, Docker, GitHub Actions.
 
 ## 6. Milestones (one real step per day)
 1. Day 1: scaffold, requirements, tooling, document chunker with tests.
