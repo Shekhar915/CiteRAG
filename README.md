@@ -3,8 +3,10 @@
 Agentic RAG service that answers from your documents with citations, and
 scores its own answers with an evaluation harness.
 
-> Status: day 4. Embeddings and vector search are in place: a Gemini embedding
-> client, a vector store interface, batched indexing and source filtering.
+> Status: day 5. Hybrid retrieval is in place: BM25 keyword search combined
+> with vector search through Reciprocal Rank Fusion. Before it came a Gemini
+> embedding client, a vector store interface, batched indexing and source
+> filtering.
 > Document ingestion (PDF, Markdown, text), settings, logging and the health
 > endpoints came before it. The Chroma-backed store is next; tests use an
 > in-memory store. See [REQUIREMENTS.md](REQUIREMENTS.md) for the scope and
