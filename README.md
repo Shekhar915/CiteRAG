@@ -3,10 +3,11 @@
 Agentic RAG service that answers from your documents with citations, and
 scores its own answers with an evaluation harness.
 
-> Status: day 5. Hybrid retrieval is in place: BM25 keyword search combined
-> with vector search through Reciprocal Rank Fusion. Before it came a Gemini
-> embedding client, a vector store interface, batched indexing and source
-> filtering.
+> Status: day 6. `POST /v1/ask` answers from the indexed documents with
+> numbered citations, and says so when the documents don't cover the question.
+> Under it sit hybrid retrieval (BM25 plus vectors, merged with Reciprocal Rank
+> Fusion), a Gemini embedding client, ingestion and settings. The document
+> upload endpoint and the Chroma-backed store are next.
 > Document ingestion (PDF, Markdown, text), settings, logging and the health
 > endpoints came before it. The Chroma-backed store is next; tests use an
 > in-memory store. See [REQUIREMENTS.md](REQUIREMENTS.md) for the scope and
