@@ -40,6 +40,15 @@ def test_empty_index_and_empty_query_return_nothing():
     assert index.search("   ") == []
 
 
+def test_remove_source_rebuilds_index():
+    index = BM25Index()
+    index.add([make_chunk("alpha", 0, "one.txt"), make_chunk("beta", 0, "two.txt")])
+    assert index.remove_source("one.txt") == 1
+    assert index.search("alpha") == []
+    assert index.search("beta")[0].chunk.source == "two.txt"
+    assert index.remove_source("one.txt") == 0
+
+
 def test_source_filter():
     index = BM25Index()
     index.add([make_chunk("alpha", 0, "one.txt"), make_chunk("alpha", 0, "two.txt")])

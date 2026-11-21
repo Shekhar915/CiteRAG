@@ -31,6 +31,16 @@ class BM25Index:
             self._doc_freq.update(counts.keys())
             self._total_length += sum(counts.values())
 
+    def remove_source(self, source: str) -> int:
+        """Delete every chunk of a document and rebuild the statistics."""
+        keep = [c for c in self._chunks if c.source != source]
+        removed = len(self._chunks) - len(keep)
+        if removed:
+            self._chunks, self._term_counts = [], []
+            self._doc_freq, self._total_length = Counter(), 0
+            self.add(keep)
+        return removed
+
     def search(self, query: str, top_k: int = 5, source: str | None = None) -> list[SearchHit]:
         terms = tokenize(query)
         n_docs = len(self._chunks)
