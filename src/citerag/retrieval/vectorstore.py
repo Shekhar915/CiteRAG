@@ -18,6 +18,8 @@ class VectorStore(Protocol):
         self, vector: list[float], top_k: int = 5, source: str | None = None
     ) -> list[SearchHit]: ...
 
+    def remove_source(self, source: str) -> int: ...
+
 
 def cosine(a: list[float], b: list[float]) -> float:
     dot = sum(x * y for x, y in zip(a, b, strict=True))
@@ -35,6 +37,12 @@ class InMemoryVectorStore:
         if len(chunks) != len(vectors):
             raise ValueError("chunks and vectors must have the same length")
         self._items.extend(zip(chunks, vectors, strict=True))
+
+    def remove_source(self, source: str) -> int:
+        """Delete every chunk of a document; returns how many were removed."""
+        before = len(self._items)
+        self._items = [(c, v) for c, v in self._items if c.source != source]
+        return before - len(self._items)
 
     def search(
         self, vector: list[float], top_k: int = 5, source: str | None = None

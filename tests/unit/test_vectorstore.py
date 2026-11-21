@@ -32,6 +32,16 @@ def test_add_rejects_mismatched_lengths():
     with pytest.raises(ValueError):
         InMemoryVectorStore().add([make_chunk("a")], [])
 
+def test_remove_source_deletes_only_that_document():
+    store = InMemoryVectorStore()
+    a = Chunk(text="a", source="one.txt", index=0, start=0, end=1)
+    b = Chunk(text="b", source="two.txt", index=0, start=0, end=1)
+    store.add([a, b], [[1, 0], [1, 0]])
+    assert store.remove_source("one.txt") == 1
+    assert store.remove_source("missing.txt") == 0
+    assert [h.chunk.source for h in store.search([1, 0])] == ["two.txt"]
+
+
 def test_search_can_filter_by_source():
     store = InMemoryVectorStore()
     a = Chunk(text="a", source="one.txt", index=0, start=0, end=1)
