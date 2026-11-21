@@ -38,8 +38,6 @@ except ValueError as exc:
     st.error(f"{exc}. Add it to your .env file and restart the app.")
     st.stop()
 
-if "indexed" not in st.session_state:
-    st.session_state.indexed = {}
 if "history" not in st.session_state:
     st.session_state.history = []
 
@@ -50,23 +48,27 @@ with st.sidebar:
         accept_multiple_files=True,
     )
     if st.button("Index documents", disabled=not files, use_container_width=True):
-        new = [(f.name, f.getvalue()) for f in files if f.name not in st.session_state.indexed]
-        if not new:
-            st.info("These files are already indexed.")
         with st.spinner("Indexing..."):
             try:
-                for result in ingest_uploads(pipeline, new):
+                for result in ingest_uploads(pipeline, [(f.name, f.getvalue()) for f in files]):
                     if result.error:
                         st.error(f"{result.name}: {result.error}")
+                    elif result.unchanged:
+                        st.info(f"{result.name}: already indexed, no changes.")
                     else:
-                        st.session_state.indexed[result.name] = result.chunks
+                        st.success(f"{result.name}: indexed ({result.chunks} chunks).")
             except Exception as exc:  # network or API errors
                 st.error(f"Indexing failed: {exc}")
 
-    if st.session_state.indexed:
+    documents = pipeline.list_documents()
+    if documents:
         st.subheader("Indexed")
-        for name, chunks in st.session_state.indexed.items():
-            st.write(f"• {name} ({chunks} chunks)")
+        for doc in documents:
+            name_col, delete_col = st.columns([4, 1])
+            name_col.write(f"{doc.name} ({doc.chunks} chunks)")
+            if delete_col.button("🗑", key=f"delete-{doc.name}", help=f"Remove {doc.name}"):
+                pipeline.delete_document(doc.name)
+                st.rerun()
 
     top_k = st.slider("Passages to retrieve", 1, 10, 5)
     if st.button("Clear chat", use_container_width=True):
@@ -81,7 +83,7 @@ for item in st.session_state.history:
 
 question = st.chat_input("Ask a question about your documents")
 if question:
-    if not st.session_state.indexed:
+    if not pipeline.list_documents():
         st.warning("Index at least one document first (sidebar).")
     else:
         with st.chat_message("user"):
