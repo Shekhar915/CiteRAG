@@ -44,6 +44,45 @@ def test_ingest_then_ask_returns_cited_answer(tmp_path):
     assert response.citations[0].source == "policy.txt"
 
 
+def test_reingesting_unchanged_file_is_skipped(tmp_path):
+    doc = tmp_path / "policy.txt"
+    doc.write_text("Refund requests are processed within 14 days.", encoding="utf-8")
+    pipeline = make_pipeline()
+
+    assert pipeline.ingest(doc) == 1
+    assert pipeline.is_up_to_date(doc) is True
+    assert pipeline.ingest(doc) == 0
+    assert len(pipeline.list_documents()) == 1
+
+
+def test_changed_file_replaces_old_chunks(tmp_path):
+    doc = tmp_path / "policy.txt"
+    doc.write_text("Refund requests take 14 days.", encoding="utf-8")
+    pipeline = make_pipeline()
+    pipeline.ingest(doc)
+
+    doc.write_text("Refund requests take 30 days now.", encoding="utf-8")
+    assert pipeline.is_up_to_date(doc) is False
+    assert pipeline.ingest(doc) == 1
+
+    hits = pipeline.bm25.search("refund", top_k=10)
+    assert len(hits) == 1
+    assert "30 days" in hits[0].chunk.text
+    assert pipeline.list_documents()[0].chunks == 1
+
+
+def test_delete_document_removes_it_from_search(tmp_path):
+    doc = tmp_path / "policy.txt"
+    doc.write_text("Refund requests take 14 days.", encoding="utf-8")
+    pipeline = make_pipeline()
+    pipeline.ingest(doc)
+
+    assert pipeline.delete_document("policy.txt") is True
+    assert pipeline.delete_document("policy.txt") is False
+    assert pipeline.list_documents() == []
+    assert pipeline.ask("How long do refunds take?").grounded is False
+
+
 def test_ask_with_nothing_indexed_is_ungrounded():
     response = make_pipeline().ask("anything at all")
     assert response.grounded is False
