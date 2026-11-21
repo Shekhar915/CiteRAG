@@ -3,8 +3,12 @@ from citerag.ui.helpers import format_citation, ingest_uploads
 
 
 class FakePipeline:
-    def __init__(self):
+    def __init__(self, indexed=()):
         self.seen = []
+        self.indexed = set(indexed)
+
+    def is_up_to_date(self, path):
+        return path.name in self.indexed
 
     def ingest(self, path):
         if path.suffix == ".exe":
@@ -21,6 +25,13 @@ def test_ingest_uploads_indexes_each_file():
         ("b.md", 3, None),
     ]
     assert pipeline.seen == [("a.txt", "hello"), ("b.md", "world")]
+
+
+def test_unchanged_file_is_not_reindexed():
+    pipeline = FakePipeline(indexed={"a.txt"})
+    results = ingest_uploads(pipeline, [("a.txt", b"hello")])
+    assert results[0].unchanged is True
+    assert pipeline.seen == []
 
 
 def test_bad_file_is_reported_without_stopping_others():

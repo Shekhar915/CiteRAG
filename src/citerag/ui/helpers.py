@@ -11,6 +11,7 @@ class UploadResult:
     name: str
     chunks: int = 0
     error: str | None = None
+    unchanged: bool = False
 
 
 def ingest_uploads(pipeline: QAPipeline, uploads: list[tuple[str, bytes]]) -> list[UploadResult]:
@@ -25,6 +26,9 @@ def ingest_uploads(pipeline: QAPipeline, uploads: list[tuple[str, bytes]]) -> li
             path = Path(folder) / safe_name
             path.write_bytes(data)
             try:
+                if pipeline.is_up_to_date(path):
+                    results.append(UploadResult(safe_name, unchanged=True))
+                    continue
                 results.append(UploadResult(safe_name, chunks=pipeline.ingest(path)))
             except ValueError as exc:
                 results.append(UploadResult(safe_name, error=str(exc)))
