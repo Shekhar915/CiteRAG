@@ -3,7 +3,8 @@
 Agentic RAG service that answers from your documents with citations, and
 scores its own answers with an evaluation harness.
 
-> Status: day 6 plus a web UI (see below). `POST /v1/ask` answers from the indexed documents with
+> Status: day 8. Document upload, listing and deletion are available over the
+> API, next to a web UI (see below). `POST /v1/ask` answers from the indexed documents with
 > numbered citations, and says so when the documents don't cover the question.
 > Under it sit hybrid retrieval (BM25 plus vectors, merged with Reciprocal Rank
 > Fusion), a Gemini embedding client, ingestion and settings. The document
@@ -38,6 +39,20 @@ python -m venv .venv
 pip install -e ".[dev,ui]"
 pytest -q
 ```
+
+## API
+
+Run `uvicorn citerag.api.main:app --reload` and open http://localhost:8000/docs.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/health`, `/ready` | Liveness and configuration check |
+| POST | `/v1/documents` | Upload a PDF, Markdown or text file (re-uploads replace old chunks) |
+| GET | `/v1/documents` | List indexed documents |
+| DELETE | `/v1/documents/{name}` | Remove a document |
+| POST | `/v1/ask` | Ask a question; returns an answer with citations |
+
+Uploads over `MAX_UPLOAD_MB` return 413, and unsupported file types return 422.
 
 ## Web UI
 
