@@ -3,17 +3,13 @@
 Agentic RAG service that answers from your documents with citations, and
 scores its own answers with an evaluation harness.
 
-> Status: day 9. An optional LangGraph agent grades retrieved context and
-> rewrites weak queries. Document upload, listing and deletion are available
-> over the API, next to a web UI (see below). `POST /v1/ask` answers from the indexed documents with
-> numbered citations, and says so when the documents don't cover the question.
-> Under it sit hybrid retrieval (BM25 plus vectors, merged with Reciprocal Rank
-> Fusion), a Gemini embedding client, ingestion and settings. The document
-> upload endpoint and the Chroma-backed store are next.
-> Document ingestion (PDF, Markdown, text), settings, logging and the health
-> endpoints came before it. The Chroma-backed store is next; tests use an
-> in-memory store. See [REQUIREMENTS.md](REQUIREMENTS.md) for the scope and
-> milestones.
+> Status: day 10. Upload documents, ask questions and get answers with numbered
+> citations, through the API or a web UI. Retrieval is hybrid (BM25 plus
+> vectors, merged with Reciprocal Rank Fusion), and an optional LangGraph agent
+> grades the retrieved passages and rewrites weak queries. When the documents
+> don't cover a question, the answer says so. Next: the evaluation harness and
+> a Chroma-backed store (tests and the UI currently use an in-memory index).
+> See [REQUIREMENTS.md](REQUIREMENTS.md) for the scope and milestones.
 
 ## Structure
 
