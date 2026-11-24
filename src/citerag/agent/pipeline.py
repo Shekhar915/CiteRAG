@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from citerag.agent.answering import answer_question
+from citerag.agent.graph import run_agent
 from citerag.core.config import Settings, get_settings
 from citerag.ingestion.service import ingest_file
 from citerag.retrieval.bm25 import BM25Index
@@ -66,6 +67,14 @@ class QAPipeline:
     def ask(self, question: str, top_k: int = 5) -> AskResponse:
         hits = hybrid_search(question, self.embedder, self.store, self.bm25, top_k=top_k)
         return answer_question(question, hits, self.llm)
+
+    def ask_agentic(self, question: str, top_k: int = 5, max_attempts: int = 2) -> AskResponse:
+        """Like `ask`, but grades the context and rewrites weak queries first."""
+
+        def search(query: str):
+            return hybrid_search(query, self.embedder, self.store, self.bm25, top_k=top_k)
+
+        return run_agent(question, search, self.llm, max_attempts=max_attempts)
 
 
 def build_pipeline(settings: Settings | None = None) -> QAPipeline:

@@ -83,6 +83,25 @@ def test_delete_document_removes_it_from_search(tmp_path):
     assert pipeline.ask("How long do refunds take?").grounded is False
 
 
+def test_ask_agentic_runs_end_to_end(tmp_path):
+    class GradingLLM:
+        def invoke(self, messages):
+            if "judge whether" in messages[0][1]:
+                return SimpleNamespace(content="yes")
+            return SimpleNamespace(content="Refunds take 14 days [1].")
+
+    doc = tmp_path / "policy.txt"
+    doc.write_text("Refund requests are processed within 14 days.", encoding="utf-8")
+    pipeline = make_pipeline()
+    pipeline.llm = GradingLLM()
+    pipeline.ingest(doc)
+
+    response = pipeline.ask_agentic("How long do refunds take?")
+
+    assert response.grounded is True
+    assert response.citations[0].source == "policy.txt"
+
+
 def test_ask_with_nothing_indexed_is_ungrounded():
     response = make_pipeline().ask("anything at all")
     assert response.grounded is False
