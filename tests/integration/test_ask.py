@@ -9,8 +9,13 @@ class FakePipeline:
     def __init__(self):
         self.last = None
 
+    def ask_agentic(self, question, top_k=5):
+        self.last = ("agentic", question, top_k)
+        return self.ask(question, top_k)
+
     def ask(self, question, top_k=5):
-        self.last = (question, top_k)
+        if self.last is None or self.last[0] != "agentic":
+            self.last = (question, top_k)
         return AskResponse(
             answer="Refunds take 14 days [1].",
             citations=[Citation(source="policy.txt", chunk_index=0, snippet="Refund requests")],
@@ -41,6 +46,15 @@ def test_ask_passes_top_k():
     pipeline = FakePipeline()
     client_with(pipeline).post("/v1/ask", json={"question": "valid question", "top_k": 3})
     assert pipeline.last[1] == 3
+
+
+def test_agentic_flag_uses_the_agent():
+    pipeline = FakePipeline()
+    response = client_with(pipeline).post(
+        "/v1/ask", json={"question": "valid question", "agentic": True}
+    )
+    assert response.status_code == 200
+    assert pipeline.last == ("agentic", "valid question", 5)
 
 
 def test_ask_validates_input():

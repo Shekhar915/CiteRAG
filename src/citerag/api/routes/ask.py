@@ -10,4 +10,6 @@ router = APIRouter(prefix="/v1", tags=["ask"])
 @router.post("/ask", response_model=AskResponse)
 def ask(request: AskRequest, pipeline: QAPipeline = Depends(get_pipeline)) -> AskResponse:
     """Answer a question from the indexed documents, with citations."""
+    if request.agentic:
+        return pipeline.ask_agentic(request.question, top_k=request.top_k)
     return pipeline.ask(request.question, top_k=request.top_k)
