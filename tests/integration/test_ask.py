@@ -77,3 +77,14 @@ def test_ask_returns_503_when_not_configured(monkeypatch):
     assert response.status_code == 503
     assert "GEMINI_API_KEY" in response.json()["detail"]
     deps._default_pipeline.cache_clear()
+
+
+def test_ask_rejects_out_of_range_top_k():
+    client = client_with(FakePipeline())
+    assert client.post("/v1/ask", json={"question": "valid question", "top_k": 0}).status_code == 422
+    assert client.post("/v1/ask", json={"question": "valid question", "top_k": 21}).status_code == 422
+
+
+def test_ask_rejects_overlong_question():
+    client = client_with(FakePipeline())
+    assert client.post("/v1/ask", json={"question": "x" * 2001}).status_code == 422
