@@ -52,3 +52,10 @@ def test_format_citation_with_and_without_page():
         "a.pdf · page 5 · chunk 2"
     )
     assert format_citation(Citation(source="a.md", chunk_index=0)) == "a.md · chunk 0"
+
+
+def test_filename_with_path_is_reduced_to_its_basename():
+    pipeline = FakePipeline()
+    results = ingest_uploads(pipeline, [("../../evil/notes.txt", b"hi")])
+    assert results[0].name == "notes.txt"
+    assert pipeline.seen == [("notes.txt", "hi")]
