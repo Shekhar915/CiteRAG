@@ -3,8 +3,9 @@
 Agentic RAG service that answers from your documents with citations, and
 scores its own answers with an evaluation harness.
 
-> Status: day 8. Document upload, listing and deletion are available over the
-> API, next to a web UI (see below). `POST /v1/ask` answers from the indexed documents with
+> Status: day 9. An optional LangGraph agent grades retrieved context and
+> rewrites weak queries. Document upload, listing and deletion are available
+> over the API, next to a web UI (see below). `POST /v1/ask` answers from the indexed documents with
 > numbered citations, and says so when the documents don't cover the question.
 > Under it sit hybrid retrieval (BM25 plus vectors, merged with Reciprocal Rank
 > Fusion), a Gemini embedding client, ingestion and settings. The document
@@ -53,6 +54,10 @@ Run `uvicorn citerag.api.main:app --reload` and open http://localhost:8000/docs.
 | POST | `/v1/ask` | Ask a question; returns an answer with citations |
 
 Uploads over `MAX_UPLOAD_MB` return 413, and unsupported file types return 422.
+
+Add `"agentic": true` to a `/v1/ask` request to grade the retrieved passages and
+rewrite weak queries before answering (see [docs/architecture.md](docs/architecture.md)).
+It makes extra model calls, so it is off by default.
 
 ## Web UI
 
