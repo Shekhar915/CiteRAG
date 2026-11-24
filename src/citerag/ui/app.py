@@ -71,6 +71,12 @@ with st.sidebar:
                 st.rerun()
 
     top_k = st.slider("Passages to retrieve", 1, 10, 5)
+    agentic = st.checkbox(
+        "Smart retrieval",
+        value=False,
+        help="Grade the retrieved passages and rewrite the query if they look weak. "
+        "Slower, because it makes extra model calls.",
+    )
     if st.button("Clear chat", use_container_width=True):
         st.session_state.history = []
 
@@ -91,7 +97,8 @@ if question:
         with st.chat_message("assistant"):
             with st.spinner("Searching and answering..."):
                 try:
-                    response = pipeline.ask(question, top_k=top_k)
+                    ask = pipeline.ask_agentic if agentic else pipeline.ask
+                    response = ask(question, top_k=top_k)
                 except Exception as exc:  # network or API errors
                     st.error(f"Could not answer: {exc}")
                     st.stop()
