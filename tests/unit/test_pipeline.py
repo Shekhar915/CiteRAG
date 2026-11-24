@@ -106,3 +106,14 @@ def test_ask_with_nothing_indexed_is_ungrounded():
     response = make_pipeline().ask("anything at all")
     assert response.grounded is False
     assert response.citations == []
+
+
+def test_list_documents_reports_chunk_counts(tmp_path):
+    pipeline = make_pipeline()
+    for name in ("a.txt", "b.txt"):
+        doc = tmp_path / name
+        doc.write_text("Refund requests take 14 days.", encoding="utf-8")
+        pipeline.ingest(doc)
+
+    docs = {d.name: d.chunks for d in pipeline.list_documents()}
+    assert docs == {"a.txt": 1, "b.txt": 1}
