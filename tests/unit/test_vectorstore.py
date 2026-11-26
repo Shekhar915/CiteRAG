@@ -49,3 +49,6 @@ def test_search_can_filter_by_source():
     store.add([a, b], [[1, 0], [1, 0]])
     hits = store.search([1, 0], top_k=5, source="two.txt")
     assert [h.chunk.source for h in hits] == ["two.txt"]
+
+def test_cosine_with_zero_vector_is_zero():
+    assert cosine([0.0, 0.0], [1.0, 2.0]) == 0.0
