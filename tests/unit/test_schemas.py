@@ -19,3 +19,7 @@ def test_ask_response_holds_citations():
     response = AskResponse(answer="x", citations=[Citation(source="a.pdf", chunk_index=2, page=3)])
     assert response.citations[0].source == "a.pdf"
     assert response.grounded is True
+
+def test_citation_page_must_be_positive():
+    with pytest.raises(ValidationError):
+        Citation(source="a.pdf", chunk_index=0, page=0)
