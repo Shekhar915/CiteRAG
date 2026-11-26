@@ -26,3 +26,7 @@ def test_duplicates_are_merged_and_top_k_applies():
 
 def test_empty_rankings_give_empty_result():
     assert reciprocal_rank_fusion([[], []]) == []
+
+
+def test_top_k_zero_returns_nothing():
+    assert reciprocal_rank_fusion([[hit(0)]], top_k=0) == []
